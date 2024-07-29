@@ -2,7 +2,7 @@
 
 int main() {
     
-    int d = 97;
+    int d = 1234567890;
     float f = 90.03;
     char c = 'd';
     char str[20] = "MOM!!";

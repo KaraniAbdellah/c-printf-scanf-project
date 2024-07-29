@@ -5,8 +5,8 @@
 
 // Tasks
 /*
-    Find a Type Of Second Argument Of printf()
-    find a another way to print something in stdout
+    Find a Type Of Second Argument Of printf() --> ...
+    find a another way to print something in stdout --> write(stdout, &data, byteNumber)
     
     we have the format specifiers [ %d, %s, %i, %c, %f ]
     
@@ -62,20 +62,43 @@ void _printf(char *str, ...) {
 }
 
 
+
+
+
+int _get_integer_digits(int n) {
+    if (n == 0) return 1;
+    int count = 0;
+    while (n != 0) {
+        n = n / 10;
+        count++;
+    }
+    return count;
+}
+
 void _putchar(int n) {
-    write(1, &n, sizeof(int));
+    int count = 0;
+    int length = _get_integer_digits(n);
+    char number[length];
+    // convert number to string
+    while (n != 0) {
+        number[length - 1 - count]  = (char) ((n % 10) + 48);
+        n = n / 10;
+        count++;
+    }
+    number[length] = '\0';
+    write(1, number, sizeof(number));
 }
 
 void _print_c(char c) {
-    write(1, &c, sizeof(char));
+    write(1, &c, sizeof(c));
 }
 
 void _print_f(float f) {
-    write(1, &f, sizeof(float));
+    write(1, &f, sizeof(f));
 }
 
 void _printf_string(char *str) {
-    write(1, &str, sizeof(str) / sizeof(char));
+    write(1, str, sizeof(str) / sizeof(char));
 }
 
 
