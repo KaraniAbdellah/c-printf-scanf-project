@@ -55,7 +55,7 @@ void _printf(char *str, ...) {
                 _printf_string(param);
             } else {
                 // error || another type
-                _printf_string("Error || Another Type");
+               //  _printf_string("Error || Another Type");
             }
         }
     }
