@@ -1,20 +1,14 @@
 #include "printf.h"
+#include <stdio.h>
 
 int main() {
     
-    int d = 1234567890;
-    float f = 90.03;
-    char c = 'd';
-    char str[20] = "MOM!!";
-    long int ld = 10220303;
-    _printf("We Have Just %d, \
-        \nLetter Is %c, \
-        \nFloat Number Is %f, \
-        \nString Is %s, \
-        \nAnd Last is %ld \n", 
-        d, c, f, str, ld);
-    
-    
+    int n = 42;
+    float pi = 103.494;
+    char c = 'A';
+    char str[100] = "Information";
+    _printf("The value of pi is approximately %f and %.9f\n and the answer is %d\n which is a great number for '%c'\n%s\n", 
+    pi, pi, n, c, str);
     return 0;
 }
 
