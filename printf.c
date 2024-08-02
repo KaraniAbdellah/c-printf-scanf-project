@@ -35,43 +35,51 @@ void _printf(char *str, ...) {
     char *p;
     va_list args;
     va_start(args, str);
+    bool check;
+    char *str_nbr;
     for (p = str; *p != '\0'; p++) {
         // print The String
-        if (*p != '%') _print_c(*p);
+        check = false; str_nbr = NULL;
+        if (*p != '%') _print_c(*p, check, str_nbr);
         if (*p == '%') {
-            p++;
+            p++; check = false; str_nbr = NULL;
             if (*p == '.') {
-                p++;
-                if (*(p) != 'f' && *(p) != 'd' && *(p) != 's') {
-                    p++;
-                    if (*(p) == 'f') {
-                        float param = va_arg(args, double);
-                        _print_f(param, true, (p--));
-                        p++;
-                    }
-                    
+                // start getting number if digits or charcaters
+                p++; int count = 0;
+                str_nbr = (char *) malloc(2 * sizeof(char));
+                while (*p != 'd' && *p != 's' && *p != 'f' && *p != 'c') {
+                    str_nbr[count] = *p;
+                    p++; count++;
+                    str_nbr = realloc(str_nbr, (count + 2) * sizeof(char));
                 }
-                else p++;
+                str_nbr[count] = '\0';
+                check = true;
+                printf("\nHint : str_nbr : %s || count = %d || check = %d\n", str_nbr, count, check);
             }
-            else if (*p  == 'd') {
+            if (*p  == 'd') {
                 // integer
                 int param = va_arg(args, int);
-                _putchar(param);
-            } else if (*p == 'c') {
+                _putchar(param, check, str_nbr);
+            }
+            if (*p == 'c') {
                 // character
                 char param = va_arg(args, int);
-                _print_c(param);
-            }  else if (*p == 'f') {
+                _print_c(param, check, str_nbr);
+            }
+            if (*p == 'f') {
                 // float
                 float param = va_arg(args, double);
-                _print_f(param, false, NULL);
-            } else if (*p == 's') {
+                
+                _print_f(param, check, str_nbr);
+            } 
+            if (*p == 's') {
                 // string
                 char *param = va_arg(args, char*);
-                _printf_string(param);
-            } else {
+                _printf_string(param, check, str_nbr);
+            } 
+            if (*p == 'x' || *p == 'p' || *p == 'i') {
                 // error || another type
-                _printf_string("Error || Another Type");
+                _printf_string("Error || Another Type\n", check, str_nbr);
             }
         }
     }
@@ -106,26 +114,60 @@ char *toString(int length, int n) {
     return number;
 }
 
+// convert string to number
+int toNumber(char *str_nbr) {
+    int re = 0;
+    for (int i = 0; str_nbr[i] != '\0'; i++) {
+        re = re * 10 + ((int) str_nbr[i] - 48);
+    }
+    return re;
+}
+
+
+// add zero to string
+char *add_zero(char *str, int nbr_of_digits, int length) {
+    char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + length + 1));
+    int i = 0;
+    while (i < nbr_of_digits) {
+        new_str[i] = '0';
+        i++;
+    }
+    for (int j = 0; str[j] != '0'; j++) {
+        new_str[i] = str[j]; i++;
+    }
+    new_str[i] = '\0';
+    return new_str;
+}
+
 
 // print a number
-void _putchar(int n) {
+void _putchar(int n, bool check, char *str_nbr) {
     int count = 0;
     int length = _get_integer_digits(n);
     char *str = toString(length, n);
-    write(1, str, length);
+    int nbr_of_digits = 0;
+    if (check == true && str_nbr != NULL) {
+        nbr_of_digits = toNumber(str_nbr);
+        char *new_str = add_zero(str, nbr_of_digits, length);
+        write(1, new_str, length);
+        return;
+    }
+    
+    write(1, str, length - nbr_of_digits);
 }
 
 
 // print a character
-void _print_c(char c) {
+void _print_c(char c, bool check, char *str_nbr) {
+    if (check == true && str_nbr != NULL) {
+        _printf_string("    --> Complier : Error\n", false, NULL);
+        exit(0);
+    }
     write(1, &c, sizeof(c));
 }
 
 
-/*
-    problem with floating number reset number like 
-        0.03 = 0.0299998
-*/
+
 
 // concatinate two strings
 char *concatinate(char *str1, char *str2, int l1, int l2) {
@@ -138,18 +180,18 @@ char *concatinate(char *str1, char *str2, int l1, int l2) {
     return str_re;
 }
 
+
 // trancate a number
-void truncation(char *str, int nbr, int l) {
-    printf("\nl = %d and nbr = %d\n", l, nbr);
-    while (nbr != 0) {
-        str[l] = '\0';
-        l--;
-        nbr--;
+void truncation(char *str, int nbr_of_digits, int l) {
+    // printf("\nl = %d ||\n", l);
+    for (int i = l; nbr_of_digits != 0; i--) {
+        str[i] = '\0';
+        nbr_of_digits--;
     }
 }
 
 // print a float number
-void _print_f(float f, bool is_point, char *c_nbr) {
+void _print_f(float f, bool check, char *str_nbr) {
     // get the first and second part of float number
     float nbrOne = f - (int) f;
     float nbrTwo, check_nbr;
@@ -160,36 +202,61 @@ void _print_f(float f, bool is_point, char *c_nbr) {
         if (check_nbr == 0) break;
         i *= 10;
     }
-    int re1 = (int) f;
-    int re2 = nbrTwo;
-    // convert to strings
+    int re1 = (int) f; // first part
+    int re2 = nbrTwo; // second
+    
+    // convert to strings and getting number of digits
     char length1 = _get_integer_digits(re1);
     char length2 = _get_integer_digits(re2);
     char *str1 = toString(length1, re1);
     char *str2 = toString(length2, re2);
+    
     // concatinate two strings
     char *str_re =  concatinate(str1, str2, length1, length2);
-    
-    if (is_point == true) {
-        int nbr = (int) *c_nbr - 48;
-        if (nbr < length2) {
-            int size_str_re = length1 + length2;
-            truncation(str_re, nbr, size_str_re);
-        }
+    printf("\nstr_re = %s\n", str_re);
+    // check if there nbr of digits specifiers
+    int nbr_of_digits = 0;
+    if (check == true && str_nbr != NULL) {
+        nbr_of_digits = toNumber(str_nbr);
+        printf("\nnbr_of_digits = %d  and length2 = %d\n", nbr_of_digits, length2);
+        if (nbr_of_digits < length2 - 1) 
+            truncation(str_nbr, nbr_of_digits, length1 + length2);
     }
     
-    // print The Result
-    write(1, str_re, length1 + length2);
+    // Print The Result
+    write(1, str_re, length1 + length2 - nbr_of_digits);
 }
 
 
 // print a string
-void _printf_string(char *str) {
-    // get the length os string
+void _printf_string(char *str, bool check, char *str_nbr) {
+    // get the length of string
     int count = 0;
     for (int i = 0; str[i] != '\0'; i++) count++;
-    write(1, str, count);
+    int nbr_of_characters = 0;
+    if (check == true && str_nbr != NULL) {
+        nbr_of_characters = toNumber(str_nbr);
+        if (nbr_of_characters < count) {
+            truncation(str, nbr_of_characters, count);
+        }
+    }
+    write(1, str, count - nbr_of_characters);
 }
+
+
+
+// Try To Find The Error
+// If Every Thing Working Good -->  Try To Reduce The Complexity
+
+
+// Some Test Cases --> You Can Generate An Error
+
+
+
+
+
+
+
 
 
 

@@ -7,8 +7,7 @@ int main() {
     float pi = 103.494;
     char c = 'A';
     char str[100] = "Information";
-    _printf("The value of pi is approximately %f and %.9f\n and the answer is %d\n which is a great number for '%c'\n%s\n", 
-    pi, pi, n, c, str);
+    _printf("Float : %.6f\nInteger : %d\nString : %s\nCharacter : %c\nAdreesse : %p", pi, n, str, c, &n);
     return 0;
 }
 
