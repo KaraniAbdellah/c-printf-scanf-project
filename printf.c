@@ -54,7 +54,7 @@ void _printf(char *str, ...) {
                 }
                 str_nbr[count] = '\0';
                 check = true;
-                printf("\nHint : str_nbr : %s || count = %d || check = %d\n", str_nbr, count, check);
+                // printf("\nHint : str_nbr : %s || count = %d || check = %d\n", str_nbr, count, check);
             }
             if (*p  == 'd') {
                 // integer
@@ -145,15 +145,14 @@ void _putchar(int n, bool check, char *str_nbr) {
     int count = 0;
     int length = _get_integer_digits(n);
     char *str = toString(length, n);
-    int nbr_of_digits = 0;
     if (check == true && str_nbr != NULL) {
-        nbr_of_digits = toNumber(str_nbr);
+        int nbr_of_digits = toNumber(str_nbr);
+       //  printf("\nlength = %d and str = %s and nbr_of_digits = %d\n", length, str, nbr_of_digits);
         char *new_str = add_zero(str, nbr_of_digits, length);
-        write(1, new_str, length);
+        write(1, new_str, length + nbr_of_digits);
         return;
     }
-    
-    write(1, str, length - nbr_of_digits);
+    write(1, str, length);
 }
 
 
@@ -171,24 +170,32 @@ void _print_c(char c, bool check, char *str_nbr) {
 
 // concatinate two strings
 char *concatinate(char *str1, char *str2, int l1, int l2) {
-    char *str_re = (char *) malloc(sizeof(l1 + l2 + 1));
-    int i = 0;
-    for (; str1[i] != '\0'; i++) str_re[i] = str1[i];
-    str_re[i] = ',';
-    i = 1;
-    for (; str2[i] != '\0'; i++) str_re[i + l1] = str2[i - 1];
+    char *str_re = (char *) malloc(sizeof(l1 + l2 + 2));
+    for (int i = 0; i < l1 + l2 + 1; i++) {
+        if (i < l1) str_re[i] = str1[i];
+        else if (i == l1) str_re[i] = '.';
+        else str_re[i] = str2[i - l1 - 1];
+    }
+    str_re[l2 + l1 + 1] = '\0';
     return str_re;
 }
 
 
-// trancate a number
-void truncation(char *str, int nbr_of_digits, int l) {
-    // printf("\nl = %d ||\n", l);
-    for (int i = l; nbr_of_digits != 0; i--) {
-        str[i] = '\0';
-        nbr_of_digits--;
+// trancate a float
+char *truncation_float(char *str, int nbr_of_digits, int length) {
+    if (nbr_of_digits <= length) {
+        for (int i = nbr_of_digits; i < length; i++) {
+            str[i] = '\0';
+        }
+        return str;
+    } else {
+        char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + length));
+        for (int i = 0; i < length; i++) new_str[i] = str[i];
+        for (int i = length; i < nbr_of_digits; i++) new_str[i] = '0';
+        return new_str;
     }
 }
+
 
 // print a float number
 void _print_f(float f, bool check, char *str_nbr) {
@@ -213,18 +220,29 @@ void _print_f(float f, bool check, char *str_nbr) {
     
     // concatinate two strings
     char *str_re =  concatinate(str1, str2, length1, length2);
-    printf("\nstr_re = %s\n", str_re);
+    
     // check if there nbr of digits specifiers
     int nbr_of_digits = 0;
     if (check == true && str_nbr != NULL) {
         nbr_of_digits = toNumber(str_nbr);
-        printf("\nnbr_of_digits = %d  and length2 = %d\n", nbr_of_digits, length2);
-        if (nbr_of_digits < length2 - 1) 
-            truncation(str_nbr, nbr_of_digits, length1 + length2);
-    }
-    
+        char *new_str = truncation_float(str2, nbr_of_digits, length2);
+        // concatinate two strings
+        char *str_re2 =  concatinate(str1, new_str, length1, nbr_of_digits);
+        write(1, str_re2, length1 + nbr_of_digits + 1);
+        return;
+     }
     // Print The Result
-    write(1, str_re, length1 + length2 - nbr_of_digits);
+    write(1, str_re, length1 + length2);
+}
+
+
+// trancate a string
+char *truncation_string(char *str, int nbr_of_characters, int length) {
+    char *new_str = (char *) malloc(sizeof(char) * (nbr_of_characters + length + 1));
+    for (int i = 0; i < nbr_of_characters; i++) {
+        new_str[i] = str[i];
+    }
+    return new_str;
 }
 
 
@@ -236,11 +254,14 @@ void _printf_string(char *str, bool check, char *str_nbr) {
     int nbr_of_characters = 0;
     if (check == true && str_nbr != NULL) {
         nbr_of_characters = toNumber(str_nbr);
+        // printf("\ncount = %d and str = %s and nbr_of_characters = %d\n", count, str, nbr_of_characters);
         if (nbr_of_characters < count) {
-            truncation(str, nbr_of_characters, count);
+            char *new_str = truncation_string(str, nbr_of_characters, count);
+            write(1, new_str, count + nbr_of_characters);
+            return;
         }
     }
-    write(1, str, count - nbr_of_characters);
+    write(1, str, count);
 }
 
 
