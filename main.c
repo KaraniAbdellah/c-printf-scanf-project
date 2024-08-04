@@ -2,14 +2,13 @@
 #include <stdio.h>
 
 int main() {
-    int n = 42;
-    float pi = 103.494;
+    int n = -42;
+    float pi = -103.494;
     char c = 'A';
     char str[100] = "Information";
-    _printf("Float : %f\nInteger : %.4d\nString : %.3s\nCharacter : %c\nAdreesse : %p", pi, n, str, c, &n);
-    printf("\n%.100s and %.90f\n", str, pi);
-    
-    
+    // _printf("Float : %.2f\nInteger : %d\nString : %s\nCharacter : %c\nHex : %x\n", pi, n, str, c, n);
+    // _printf("Integer : %d\nFloat : %f\n", n, pi);
+    _printf("Float : %f\n", pi);
     return 0;
 }
 

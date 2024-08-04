@@ -7,10 +7,10 @@
 
 
     void _printf(char *str, ...);
-    void _putchar(int n, bool check, char *str_nbr);
+    void _print_d(int n, bool check, char *str_nbr);
     void _print_c(char c, bool check, char *str_nbr);
     void _print_f(float f, bool check, char *str_nbr);
-    void _printf_string(char *str, bool check, char *str_nbr);
+    void _printf_s(char *str, bool check, char *str_nbr);
 
 
 
