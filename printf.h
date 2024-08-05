@@ -1,7 +1,7 @@
 // prototype of function
 #include <stdbool.h>
 
-#ifndef _PRINTF 
+#ifndef _PRINTF
 #define _PRINTF
 
 

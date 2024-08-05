@@ -99,23 +99,31 @@ int calculate_digits(int n) {
 }
 
 
-// convert number to string --> fix this function to negative numbers for float
+// coonvert number to string --> fix this function to negative numbers for float
 char *to_string(int length, int n) {
-    char *number = (char *) malloc(sizeof(char) * (length + 1)); 
-    int count = 0;
+    char *number = (char *) malloc(sizeof(char) * (length + 2));
+    // printf("\nn = %d and length = %d\n", n, length);
+    int count = 0, start, end;
     if (n < 0) {
-        number[count++] = '-';
         n = -n;
+        number[count++] = '-';
     }
     if (n == 0) number[count++] = '0';
     else {
-        int end = length;
-        while (n != 0) {
-            number[end--]  = (char) ((n % 10) + '0');
-            n = n / 10;
+        if (count == 0) {
+            start = 0; end = length - 1; count = length;
+        } else {
+            start = 1; end = length; count = length + 1;
+        }
+        for (int i = end; i >= start; i--) {
+            number[i] = (char) ((int) (n % 10) + 48);
+            // printf("\nn = %d\n", n);
+            n /= 10;
+            // printf("\nchar = %c\n", number[i]);
         }
     }
-    number[length + 1] = '\0';
+    // printf("\nnumber = %s\n", number);
+    number[count] = '\0';
     return number;
 }
 
@@ -151,10 +159,13 @@ void _print_d(int n, bool check, char *str_nbr) {
     char *str = to_string(length, n);
     if (check == true && str_nbr != NULL) {
         int nbr_of_digits = to_number(str_nbr);
-        char *new_str = add_zeros(str, nbr_of_digits, length);
-        write(1, new_str, length + nbr_of_digits);
-        free(new_str);
-        return;
+        if (nbr_of_digits > length) {
+            nbr_of_digits -= length;
+            char *new_str = add_zeros(str, nbr_of_digits, length);
+            write(1, new_str, length + nbr_of_digits);
+            free(new_str);
+            return;
+        }
     }
     write(1, str, length + 1);
     free(str);
@@ -174,39 +185,38 @@ void _print_c(char c, bool check, char *str_nbr) {
 
 
 // concatinate two strings
-char *concatinate(char *str1, char *str2, int l1, int l2) {
+char *concatinate(char *str1, char *str2, int l1, int l2, int nbr_of_digits) {
     char *str_re = (char *) malloc(sizeof(char) * (l1 + l2 + 2));
     // Copy first string
     for (int i = 0; i < l1; i++) {
         str_re[i] = str1[i];
     }
-    str_re[l1] = '.';
+    if (nbr_of_digits != 0) str_re[l1] = '.';
     for (int i = 0; i < l2; i++) {
         str_re[l1 + 1 + i] = str2[i];
     }
-    str_re[l1 + l2 + 1] = '\0'; 
+    str_re[l1 + l2 + 1] = '\0';
     return str_re;
 }
 
 
 // trancate a float
 char *truncation_float(char *str, int nbr_of_digits, int length) {
-    if (nbr_of_digits <= length) {
-        for (int i = nbr_of_digits; i < length; i++) {
-            str[i] = '\0';
-        }
-        return str;
-    } else {
-        char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + length));
-        for (int i = 0; i < length; i++) {
-            new_str[i] = str[i];
-        }
+    char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + 1));
+    int end;
+    if (nbr_of_digits <= length) end = nbr_of_digits;
+    else end = length;
+    // in the two case we use this loop
+    for (int i = 0; i < end; i++) {
+        new_str[i] = str[i];
+    }
+    if (nbr_of_digits > length) { // just if we want more then length of number
         for (int i = length; i < nbr_of_digits; i++) {
             new_str[i] = '0';
         }
-        new_str[nbr_of_digits] = '\0';
-        return new_str;
     }
+    new_str[nbr_of_digits] = '\0';
+    return new_str;
 }
 
 
@@ -224,26 +234,30 @@ void _print_f(float f, bool check, char *str_nbr) {
     }
     int re1 = (int) f; // first part
     int re2 = nbrTwo; // second
+    if (re2 < 0) re2 = -re2;
     
     // convert to strings and getting number of digits
     char length1 = calculate_digits(re1);
     char length2 = calculate_digits(re2);
     char *str1 = to_string(length1, re1);
     char *str2 = to_string(length2, re2);
+    if (str1[0] == '-') length1 += 1;
     
     // check if there nbr of digits specifiers
     if (check == true && str_nbr != NULL) {
         int nbr_of_digits = to_number(str_nbr);
         char *new_str = truncation_float(str2, nbr_of_digits, length2);
         // concatinate two strings
-        char *str_re2 =  concatinate(str1, new_str, length1, length2 + nbr_of_digits);
+        char *str_re2 =  concatinate(str1, new_str, length1, length2 + nbr_of_digits, nbr_of_digits);
         write(1, str_re2, length1 + nbr_of_digits + length2);
+        free(str1); free(str2); free(new_str); free(str_re2);
         return;
     }
     // concatinate two strings
-    char *str_re =  concatinate(str1, str2, length1, length2);
+    char *str_re =  concatinate(str1, str2, length1, length2, 0);
     // Print The Result
     write(1, str_re, length1 + length2);
+    free(str1); free(str2); free(str_re);
 }
 
 
@@ -261,14 +275,15 @@ char *truncation_string(char *str, int nbr_of_characters, int length) {
 void _printf_s(char *str, bool check, char *str_nbr) {
     // get the length of string
     int count = 0;
-    for (int i = 0; str[i] != '\0'; i++) count++;
-    int nbr_of_characters = 0;
-    if (check == true && str_nbr != NULL) {
+    while (str[count] != '\0') count++;
+    int nbr_of_characters = count;
+    if (check && str_nbr != NULL) {
         nbr_of_characters = to_number(str_nbr);
         // printf("\ncount = %d and str = %s and nbr_of_characters = %d\n", count, str, nbr_of_characters);
         if (nbr_of_characters < count) {
             char *new_str = truncation_string(str, nbr_of_characters, count);
             write(1, new_str, count + nbr_of_characters);
+            free(new_str);
             return;
         }
     }
@@ -277,9 +292,7 @@ void _printf_s(char *str, bool check, char *str_nbr) {
 
 
 
-// Try To Find The Error
-// If Every Thing Working Good -->  Try To Reduce The Complexity
-
+// Try To Reduce The Complexity --> By Another Idea
 
 // Some Test Cases --> You Can Generate An Error
 
