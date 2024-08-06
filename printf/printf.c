@@ -288,6 +288,7 @@ void _printf_s(char *str, bool check, char *str_nbr) {
 
 
 // Revise The Code --> Part Of va_list
+// make a diagramm for this project
 // make a video and then samll documentation of printf
 
 // Start scanf() --> see a video
