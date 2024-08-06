@@ -1,6 +1,5 @@
 #include <stdarg.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "printf.h"
 #include <unistd.h>
 #include <stdbool.h>
@@ -81,6 +80,7 @@ void _printf(char *str, ...) {
             }
         }
     }
+    va_end(args);
 }
 
 
@@ -99,10 +99,10 @@ int calculate_digits(int n) {
 }
 
 
-// coonvert number to string --> fix this function to negative numbers for float
+// coonvert number to string
 char *to_string(int length, int n) {
     char *number = (char *) malloc(sizeof(char) * (length + 2));
-    // printf("\nn = %d and length = %d\n", n, length);
+    if (number == NULL) exit(1);
     int count = 0, start, end;
     if (n < 0) {
         n = -n;
@@ -117,12 +117,9 @@ char *to_string(int length, int n) {
         }
         for (int i = end; i >= start; i--) {
             number[i] = (char) ((int) (n % 10) + 48);
-            // printf("\nn = %d\n", n);
             n /= 10;
-            // printf("\nchar = %c\n", number[i]);
         }
     }
-    // printf("\nnumber = %s\n", number);
     number[count] = '\0';
     return number;
 }
@@ -140,6 +137,7 @@ int to_number(char *str_nbr) {
 // add zero to string
 char *add_zeros(char *str, int nbr_of_digits, int length) {
     char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + length + 1));
+    if (new_str == NULL) exit(1);
     int i = 0;
     while (i < nbr_of_digits) {
         new_str[i] = '0';
@@ -160,7 +158,7 @@ void _print_d(int n, bool check, char *str_nbr) {
     if (check == true && str_nbr != NULL) {
         int nbr_of_digits = to_number(str_nbr);
         if (nbr_of_digits > length) {
-            nbr_of_digits -= length;
+            nbr_of_digits -= length; // "%.3d" and n = 34 --> add just one zero
             char *new_str = add_zeros(str, nbr_of_digits, length);
             write(1, new_str, length + nbr_of_digits);
             free(new_str);
@@ -184,9 +182,10 @@ void _print_c(char c, bool check, char *str_nbr) {
 
 
 
-// concatinate two strings
-char *concatinate(char *str1, char *str2, int l1, int l2, int nbr_of_digits) {
+// concatenate two strings
+char *concatenate(char *str1, char *str2, int l1, int l2, int nbr_of_digits) {
     char *str_re = (char *) malloc(sizeof(char) * (l1 + l2 + 2));
+    if (str_re == NULL) exit(1);
     // Copy first string
     for (int i = 0; i < l1; i++) {
         str_re[i] = str1[i];
@@ -203,58 +202,54 @@ char *concatinate(char *str1, char *str2, int l1, int l2, int nbr_of_digits) {
 // trancate a float
 char *truncation_float(char *str, int nbr_of_digits, int length) {
     char *new_str = (char *) malloc(sizeof(char) * (nbr_of_digits + 1));
-    int end;
-    if (nbr_of_digits <= length) end = nbr_of_digits;
-    else end = length;
-    // in the two case we use this loop
-    for (int i = 0; i < end; i++) {
-        new_str[i] = str[i];
-    }
-    if (nbr_of_digits > length) { // just if we want more then length of number
-        for (int i = length; i < nbr_of_digits; i++) {
-            new_str[i] = '0';
-        }
+    if (new_str == NULL) exit(1);
+    for (int i = 0; i < nbr_of_digits; i++) {
+        new_str[i] = (i < length) ? str[i] : '0';
     }
     new_str[nbr_of_digits] = '\0';
     return new_str;
 }
 
+// get fractional part
+int get_fractional_part(float fract_part) {
+    float result, check_nbr;
+    int multiplier = 10;
+    while (1) {
+        result = fract_part * multiplier;
+        check_nbr = result - (int) result;
+        if (check_nbr == 0) break;
+        multiplier *= 10;
+    }
+    return (int) result;
+}
 
 // print a float number
 void _print_f(float f, bool check, char *str_nbr) {
     // get the first and second part of float number
-    float nbrOne = f - (int) f;
-    float nbrTwo, check_nbr;
-    int i = 10;
-    while (1) {
-        nbrTwo = nbrOne * i;
-        check_nbr = nbrTwo - (int) nbrTwo;
-        if (check_nbr == 0) break;
-        i *= 10;
-    }
-    int re1 = (int) f; // first part
-    int re2 = nbrTwo; // second
-    if (re2 < 0) re2 = -re2;
+    int first_part = (int) f;
+    int second_part = get_fractional_part(f - first_part);
+    if (second_part < 0) second_part = -second_part;
+    
     
     // convert to strings and getting number of digits
-    char length1 = calculate_digits(re1);
-    char length2 = calculate_digits(re2);
-    char *str1 = to_string(length1, re1);
-    char *str2 = to_string(length2, re2);
+    char length1 = calculate_digits(first_part);
+    char length2 = calculate_digits(second_part);
+    char *str1 = to_string(length1, first_part);
+    char *str2 = to_string(length2, second_part);
     if (str1[0] == '-') length1 += 1;
     
     // check if there nbr of digits specifiers
-    if (check == true && str_nbr != NULL) {
+    if (check && str_nbr != NULL) {
         int nbr_of_digits = to_number(str_nbr);
         char *new_str = truncation_float(str2, nbr_of_digits, length2);
-        // concatinate two strings
-        char *str_re2 =  concatinate(str1, new_str, length1, length2 + nbr_of_digits, nbr_of_digits);
-        write(1, str_re2, length1 + nbr_of_digits + length2);
+        // concatenate two strings
+        char *str_re2 =  concatenate(str1, new_str, length1, length2 + nbr_of_digits, nbr_of_digits);
+        write(1, str_re2, length1 + nbr_of_digits + 1);
         free(str1); free(str2); free(new_str); free(str_re2);
         return;
     }
-    // concatinate two strings
-    char *str_re =  concatinate(str1, str2, length1, length2, 0);
+    // concatenate two strings
+    char *str_re =  concatenate(str1, str2, length1, length2, 1);
     // Print The Result
     write(1, str_re, length1 + length2);
     free(str1); free(str2); free(str_re);
@@ -264,6 +259,7 @@ void _print_f(float f, bool check, char *str_nbr) {
 // trancate a string
 char *truncation_string(char *str, int nbr_of_characters, int length) {
     char *new_str = (char *) malloc(sizeof(char) * (nbr_of_characters + length + 1));
+    if (new_str == NULL) exit(1);
     for (int i = 0; i < nbr_of_characters; i++) {   
         new_str[i] = str[i];
     }
@@ -279,7 +275,6 @@ void _printf_s(char *str, bool check, char *str_nbr) {
     int nbr_of_characters = count;
     if (check && str_nbr != NULL) {
         nbr_of_characters = to_number(str_nbr);
-        // printf("\ncount = %d and str = %s and nbr_of_characters = %d\n", count, str, nbr_of_characters);
         if (nbr_of_characters < count) {
             char *new_str = truncation_string(str, nbr_of_characters, count);
             write(1, new_str, count + nbr_of_characters);
@@ -292,12 +287,10 @@ void _printf_s(char *str, bool check, char *str_nbr) {
 
 
 
-// Try To Reduce The Complexity --> By Another Idea
+// Revise The Code --> Part Of va_list
+// make a video and then samll documentation of printf
 
-// Some Test Cases --> You Can Generate An Error
-
-
-
+// Start scanf() --> see a video
 
 
 
