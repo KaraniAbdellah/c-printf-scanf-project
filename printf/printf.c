@@ -14,12 +14,12 @@
     va_list: pointe to the list that contain all arguments
     va_start: initialse a list by given [ listOfArgs & first_param ]
     va_arg: getting first param by taking [ listOfArgs & type_of_arg ]
+    va_end(args) : end of arguments
     
     ssize_t write(int fd, const void *buf, size_t count);
         fd : file descriptor is stdout = 1
         buf: data to be written
         count: nbr of byte to write
-
 */
 
 void _printf(char *str, ...) {
@@ -287,7 +287,6 @@ void _printf_s(char *str, bool check, char *str_nbr) {
 
 
 
-// Revise The Code --> Part Of va_list
 // make a diagramm for this project
 // make a video and then samll documentation of printf
 
