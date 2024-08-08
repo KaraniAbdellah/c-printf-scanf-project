@@ -1,7 +1,3 @@
-# c-printf-scanf-project
-
-A project to learn and implement `printf()` and `scanf()` functions in C.
-
 ## Project Overview
 
 This project provides a custom implementation of the `printf()` function in C. It supports various format specifiers and demonstrates handling of integer, character, float, and string outputs.
