@@ -277,20 +277,16 @@ void _printf_s(char *str, bool check, char *str_nbr) {
         nbr_of_characters = to_number(str_nbr);
         if (nbr_of_characters < count) {
             char *new_str = truncation_string(str, nbr_of_characters, count);
-            write(1, new_str, count + nbr_of_characters);
+            write(1, new_str, nbr_of_characters);
             free(new_str);
             return;
         }
     }
-    write(1, str, count);
+    write(1, str, count + 1);
 }
 
 
 
-// make a diagramm for this project
-// make a video and then samll documentation of printf
-
-// Start scanf() --> see a video
 
 
 

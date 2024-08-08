@@ -8,7 +8,7 @@ int main() {
     _printf("Float : %.2f\nInteger : %d\nString : %s\nCharacter : %c\nHex : %x\n", pi, n, str, c, n);
     _printf("Integer : %.9d\n", n);
     _printf("Float : %.10f\n", pi);
-    _printf("string = %.100s\n", str);
+    _printf("string = %.5s\n", str);
     return 0;
 }
 
