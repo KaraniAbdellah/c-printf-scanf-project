@@ -26,21 +26,18 @@ This project provides a custom implementation of the `printf()` function in C. I
 
 ## Usage
 
-1. Include the `printf.h` header file in your program.
-2. Use the `_printf` function with a format string followed by the values to be formatted.
+To compile and run the project:
 
-Example:
-```c
-#include "printf.h"
+1. Compile the code:
+    ```bash
+    gcc main.c printf.c -o main
+    ```
 
-int main() {
-    int n = 73;
-    float pi = -103.4932904;
-    char c = 'A';
-    char str[100] = "Information";
-    _printf("Float : %.2f\nInteger : %d\nString : %s\nCharacter : %c\nHex : %x\n", pi, n, str, c, n);
-    _printf("Integer : %.9d\n", n);
-    _printf("Float : %.10f\n", pi);
-    _printf("String = %.5s\n", str);
-    return 0;
-}
+2. Execute the compiled program:
+    ```bash
+    ./main
+    ```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
