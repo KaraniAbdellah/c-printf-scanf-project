@@ -1,10 +1,7 @@
 # `printf()` and `scanf()` in C
 
-This project includes custom implementations of the `printf()` and `scanf()` functions in C. For detailed information on each part of the code, please refer to the README files in the respective `printf` and `scanf` folders.
+For each folder, `printf` and `scanf`, there is a README file where you can read about each part of the code and what it does.
 
-## Contributing
+Contributions to the projects are welcome.
 
-Contributions to the project are welcome. If you have suggestions, improvements, or bug fixes, feel free to get involved.
-
-                Abdellah Karani
-
+    Abdellah Karani
