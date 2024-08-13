@@ -40,60 +40,121 @@
         
         search about using regex in strcmp()
         
+        
+        problem with integer
+        problem with buffer size
+        search about using regex in c in scanf()
 */
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include "scanf.h"
 
 char _scanf(char *str, ...) {
     char *p = str;
     va_list args;
     va_start(args, str);
-    char message[20] = "Unuknow Character";
+    // getting the characters
+    char buffer[100];
+    ssize_t n = read(1, buffer, sizeof(buffer) - 1);
+    buffer[n] = ' '; buffer[n] = '\0';
+    // return first token
+    char *token = strtok(buffer, " ");
     while (*p != '\0') {
         if (*p == '%') {
             p++;
-            // getting what is comping after %
-            char *afterChrcs = (char *) malloc(sizeof(char));
+            // getting what is comming after %
+            char *afterChrcs = NULL;
             int i = 0;
-            while (*p != 'd' && *p != 's' && *p != 'c') {
-                afterChrcs[i] = *p; i++; p++;
+            if (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
+                afterChrcs = (char *) malloc(sizeof(char));
+                while (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
+                    afterChrcs[i] = *p; i++; p++;
+                }
             }
             // test cases
             switch(*p) {
                 case 'd': {
-                    char buffer[20];
+                    error(afterChrcs);
                     int *param = va_arg(args, int *);
-                    read(1, buffer, sizeof(buffer - 1));
-                    *param = atoi(buffer);
+                    if (token != NULL) {
+                        printf("Integer is %s\n", token);
+                        *param = atoi(token);
+                        token = strtok(NULL, " ");
+                    }
                     break;
                 }
                 case 's': {
-                    printf("%c", *p);
+                    // printf("String is %s\n", token);
+                    char *str = va_arg(args, char *);
+                    if (token != NULL) {
+                        strcpy(str, token);
+                        token = strtok(NULL, " ");
+                    }
+                    if (afterChrcs != NULL) {
+                        custom_string(str, afterChrcs, token);
+                    }
                     break;
                 }
                 case 'f': {
-                    char buffer[20];
+                    error(afterChrcs);
+                    // printf("Float is %s\n", token);
                     float *param = va_arg(args, float *);
-                    read(1, buffer, sizeof(buffer - 1));
-                    *param = atof(buffer);
+                    if (token != NULL) {
+                        *param = atof(token);
+                        token = strtok(NULL, " ");
+                    }
+                    break;
+                }
+                case 'c': {
+                    error(afterChrcs);
+                    // printf("Character is %s\n", token);
+                    char *c = va_arg(args, char *);
+                    if (token != NULL) {
+                        strcpy(c, token);
+                        token = strtok(NULL, " ");
+                    }
                     break;
                 }
                 default: {
-                    printf("%s", message);
+                    printf("Unknown format specifier: %c\n", *p);
                 }
             }
-        } else {
-            printf("%s", message);
-        } 
+        } else if (*p != ' ') {
+            error("error");
+        } else;
         p++;
     }
-    // char buf[20] = "kdkdkd";
-    // read(1, buf, sizeof(buf));
-    // write(0, buf, sizeof(buf));
+    va_end(args);
     return '\n';
 }
+
+
+
+void error(char *str) {
+    char error_message[20] = "Unknown Characters";
+    if (str != NULL) {
+        printf("Compiler --> %s", error_message);
+        exit(1);
+    }
+}
+
+
+void custom_string(char *str, char *afterChrcs, char *token) {
+    if (strcmp(afterChrcs, "%[^\n]")) {
+        while (token != NULL) {
+            // printf("%s\n", token);
+            strcat(str, token);
+            token = strtok(NULL, " ");
+        }
+        token = NULL;
+    }
+    return;
+}
+
+
 
 
 

@@ -5,14 +5,15 @@
 int main() {
     
     // start a simple test
-    char str[20];
     // scanf("%", str);
     // printf("%s", str);
     
-    int n;
-    float f;
-    _scanf("%f", &f);
-    printf("\nn = %d and f = %f\n", n, f);
+    char str[20];
+    int n = 10;
+    float f = 100.48;
+    char c = 's';
+    _scanf("%d %f %c %s", &n, &f, &c, str);
+    printf("\nn = %d\nf = %f\nstr = %s\ncharacter = %c", n, f, str, c);
     
     
     
