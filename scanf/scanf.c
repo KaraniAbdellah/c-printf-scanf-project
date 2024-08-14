@@ -51,6 +51,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "scanf.h"
+#include <ctype.h>
 
 char _scanf(char *str, ...) {
     char *p = str;
@@ -58,8 +59,8 @@ char _scanf(char *str, ...) {
     va_start(args, str);
     // getting the characters
     char buffer[100];
-    ssize_t n = read(1, buffer, sizeof(buffer) - 1);
-    buffer[n] = ' '; buffer[n] = '\0';
+    ssize_t n = read(0, buffer, sizeof(buffer) - 1);
+    buffer[n] = '\0'; // buffer[n + 1] = '\0';
     // return first token
     char *token = strtok(buffer, " ");
     while (*p != '\0') {
@@ -69,7 +70,7 @@ char _scanf(char *str, ...) {
             char *afterChrcs = NULL;
             int i = 0;
             if (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
-                afterChrcs = (char *) malloc(sizeof(char));
+                afterChrcs = (char *) malloc(sizeof(char) * 20);
                 while (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
                     afterChrcs[i] = *p; i++; p++;
                 }
@@ -80,7 +81,6 @@ char _scanf(char *str, ...) {
                     error(afterChrcs);
                     int *param = va_arg(args, int *);
                     if (token != NULL) {
-                        printf("Integer is %s\n", token);
                         *param = atoi(token);
                         token = strtok(NULL, " ");
                     }
@@ -89,12 +89,13 @@ char _scanf(char *str, ...) {
                 case 's': {
                     // printf("String is %s\n", token);
                     char *str = va_arg(args, char *);
-                    if (token != NULL) {
+                    if (token != NULL && afterChrcs == NULL) {
                         strcpy(str, token);
                         token = strtok(NULL, " ");
                     }
                     if (afterChrcs != NULL) {
                         custom_string(str, afterChrcs, token);
+                        return '\n'; // for reading until new line
                     }
                     break;
                 }
@@ -113,7 +114,7 @@ char _scanf(char *str, ...) {
                     // printf("Character is %s\n", token);
                     char *c = va_arg(args, char *);
                     if (token != NULL) {
-                        strcpy(c, token);
+                        *c = token[0];
                         token = strtok(NULL, " ");
                     }
                     break;
@@ -141,16 +142,31 @@ void error(char *str) {
     }
 }
 
+int find(const char *str, char c) { 
+    int i; 
+    for(i=0; str[i] != 0; i++) if(str[i] == c) return i; 
+    return -1; 
+} 
+
 
 void custom_string(char *str, char *afterChrcs, char *token) {
-    if (strcmp(afterChrcs, "%[^\n]")) {
+    int pos_slash = find(afterChrcs, 94) + 1;
+    printf("The Position of the slash is %d and charcater \
+    reading to is %c searching in %s", pos_slash, afterChrcs[pos_slash + 1], afterChrcs);
+    
+    // handle the test cases of reading until character after "^"
+    if (pos_slash != -1) {
         while (token != NULL) {
-            // printf("%s\n", token);
+            printf("\ntoken = %s and str = %s\n", token, str);
             strcat(str, token);
+            strcat(str, " ");
             token = strtok(NULL, " ");
+            if (find(token, (int) afterChrcs[pos_slash]) != -1) break;
         }
-        token = NULL;
     }
+    
+    
+    
     return;
 }
 

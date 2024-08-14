@@ -8,13 +8,22 @@ int main() {
     // scanf("%", str);
     // printf("%s", str);
     
-    char str[20];
+    char str1[40], str2[40];
     int n = 10;
     float f = 100.48;
     char c = 's';
-    _scanf("%d %f %c %s", &n, &f, &c, str);
-    printf("\nn = %d\nf = %f\nstr = %s\ncharacter = %c", n, f, str, c);
+    // 
+    _scanf("%[^\n]s", str1);
+    // scanf("%[^\p]s", str1);
+    printf("\nn = %d\nf = %f\nstr1 = %s\ncharacter = %c\nstr2 = %s", n, f, str1, c, str2);
     
+    
+    
+    // wrong test cases
+    // _scanf("%[^\n]", str);
+    // scanf("%[^\n]", str);
+    
+
     
     
     return 0;
