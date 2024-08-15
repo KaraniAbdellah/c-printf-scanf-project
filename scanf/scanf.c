@@ -60,7 +60,7 @@ char _scanf(char *str, ...) {
     // getting the characters
     char buffer[100];
     ssize_t n = read(0, buffer, sizeof(buffer) - 1);
-    buffer[n] = '\0'; // buffer[n + 1] = '\0';
+    buffer[n] = '\0';
     // return first token
     char *token = strtok(buffer, " ");
     while (*p != '\0') {
@@ -143,27 +143,69 @@ void error(char *str) {
 }
 
 int find(const char *str, char c) { 
-    int i; 
-    for(i=0; str[i] != 0; i++) if(str[i] == c) return i; 
-    return -1; 
+    for(int i = 0; str[i] != '\0'; i++) if(str[i] == c) return i; 
+    return -1;
 } 
 
 
+
+int is_integer(const char *str) {
+    // Check if the string is empty
+    if (str == NULL || *str == '\0') return 0;
+    int i = 0;
+    // Check for an optional leading negative sign
+    if (str[0] == '-') {
+        if (strlen(str) == 1) return 0;
+        i = 1;
+    }
+    // Check each character to see if it is a digit
+    for (; str[i] != '\0'; i++) {
+        if (!isdigit(str[i])) return 0;
+    }
+    return 1; // is integer
+}
+
+
+
 void custom_string(char *str, char *afterChrcs, char *token) {
-    int pos_slash = find(afterChrcs, 94) + 1;
-    printf("The Position of the slash is %d and charcater \
-    reading to is %c searching in %s", pos_slash, afterChrcs[pos_slash + 1], afterChrcs);
-    
+    int pos_slash = find(afterChrcs, 94);
     // handle the test cases of reading until character after "^"
     if (pos_slash != -1) {
         while (token != NULL) {
-            printf("\ntoken = %s and str = %s\n", token, str);
+            if (find(token, (int) afterChrcs[pos_slash + 1]) != -1) {
+                int length = strlen(str); int i = 0;
+                while (token[i] != afterChrcs[pos_slash + 1]) {
+                    str[length] = token[i];
+                    length++; i++;
+                }
+                str[length] = '\0'; break; 
+            }
             strcat(str, token);
             strcat(str, " ");
             token = strtok(NULL, " ");
-            if (find(token, (int) afterChrcs[pos_slash]) != -1) break;
         }
     }
+    
+    // test cases of "%3s"
+    if (is_integer(afterChrcs)) {
+        int nbr_digits = atoi(afterChrcs);
+        int j, length_token;
+        while (token != NULL) {
+            length_token = strlen(token);
+            j = 0;
+            for (int i = 0; i < nbr_digits; i++) {
+                str[i] = token[j]; j++;
+            }
+            if (length_token < nbr_digits) {
+                token = strtok(NULL, " ");
+            }
+        }
+    }
+    
+    
+    
+    
+    // test cases of "%[^\n]20s"
     
     
     

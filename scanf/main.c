@@ -13,7 +13,7 @@ int main() {
     float f = 100.48;
     char c = 's';
     // 
-    _scanf("%[^\n]s", str1);
+    _scanf("%30s", str1);
     // scanf("%[^\p]s", str1);
     printf("\nn = %d\nf = %f\nstr1 = %s\ncharacter = %c\nstr2 = %s", n, f, str1, c, str2);
     
