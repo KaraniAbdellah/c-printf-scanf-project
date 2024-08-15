@@ -8,42 +8,7 @@
 */
 
 /*
-|| function return '\n'
-|| getting all thing after %
-|| in string sometime we do not need "s"
-|| after \c --> print c as a character
-|| number of % is not same of number of variables
-    string case : 
-        stop into space
-        [^\n] --> The string is read until the newline character
-        size of entered string > size of string --> generate an error
-        %3s --> take just three character and stop into spaces
-        &str --> generate An Error
-        %[^\n]09810983s --> no problem
-        %[^\n]20s --> :until the newline character, 20 characters are read
-        %[^\"] --> reads a string until the "
-        %[^\n] --> string is new_line || %[^\"]
-        
-    integer case : 
-        %d --> normal case
-        %.3d : error
-        %dd : No Problem
-        
-    float case
-        %f --> normal case
-        %.3f : error
-        
-    chracter case:
-        %c --> normal case
-        %.3c : error
-        
-        
-        search about using regex in strcmp()
-        
-        
-        problem with integer
         problem with buffer size
-        search about using regex in c in scanf()
 */
 #include <stdarg.h>
 #include <stdio.h>
@@ -69,9 +34,9 @@ char _scanf(char *str, ...) {
             // getting what is comming after %
             char *afterChrcs = NULL;
             int i = 0;
-            if (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
-                afterChrcs = (char *) malloc(sizeof(char) * 20);
-                while (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f') {
+            if (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f' && *p != '\0') {
+                afterChrcs = (char *) calloc(20, sizeof(char));
+                while (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f' && *p != '\0') {
                     afterChrcs[i] = *p; i++; p++;
                 }
             }
@@ -79,6 +44,7 @@ char _scanf(char *str, ...) {
             switch(*p) {
                 case 'd': {
                     error(afterChrcs);
+                    printf("Intger and token = %s\n", token);
                     int *param = va_arg(args, int *);
                     if (token != NULL) {
                         *param = atoi(token);
@@ -87,7 +53,6 @@ char _scanf(char *str, ...) {
                     break;
                 }
                 case 's': {
-                    // printf("String is %s\n", token);
                     char *str = va_arg(args, char *);
                     if (token != NULL && afterChrcs == NULL) {
                         strcpy(str, token);
@@ -95,13 +60,13 @@ char _scanf(char *str, ...) {
                     }
                     if (afterChrcs != NULL) {
                         custom_string(str, afterChrcs, token);
-                        return '\n'; // for reading until new line
+                        printf("token in cutsom is %s\n", token);
                     }
                     break;
                 }
                 case 'f': {
+                    printf("We Are In Float\n");
                     error(afterChrcs);
-                    // printf("Float is %s\n", token);
                     float *param = va_arg(args, float *);
                     if (token != NULL) {
                         *param = atof(token);
@@ -110,13 +75,19 @@ char _scanf(char *str, ...) {
                     break;
                 }
                 case 'c': {
+                    printf("We Are In Characters\n");
                     error(afterChrcs);
-                    // printf("Character is %s\n", token);
                     char *c = va_arg(args, char *);
                     if (token != NULL) {
                         *c = token[0];
                         token = strtok(NULL, " ");
                     }
+                    break;
+                }
+                case '\0': {
+                    printf("We Are In NULL\n");
+                    char *str = va_arg(args, char *);
+                    custom_string(str, afterChrcs, token);
                     break;
                 }
                 default: {
@@ -169,7 +140,7 @@ int is_integer(const char *str) {
 
 void custom_string(char *str, char *afterChrcs, char *token) {
     int pos_slash = find(afterChrcs, 94);
-    // handle the test cases of reading until character after "^"
+    // handle the test cases of reading until character after "^" && test cases of "%[^\n]20s"
     if (pos_slash != -1) {
         while (token != NULL) {
             if (find(token, (int) afterChrcs[pos_slash + 1]) != -1) {
@@ -184,30 +155,36 @@ void custom_string(char *str, char *afterChrcs, char *token) {
             strcat(str, " ");
             token = strtok(NULL, " ");
         }
+        // get all digits after ]
+        int pos_bracket = find(afterChrcs, 93);
+        char *p = afterChrcs + pos_bracket + 1;
+        int nbr_digits = atoi(p);
+        if (nbr_digits != - 1 && *p != '\0') {
+            int length_str = strlen(str);
+            for (int i = nbr_digits + 1; i < length_str; i++) {
+                str[i] = '\0';
+            }
+        }
     }
     
     // test cases of "%3s"
     if (is_integer(afterChrcs)) {
         int nbr_digits = atoi(afterChrcs);
-        int j, length_token;
-        while (token != NULL) {
-            length_token = strlen(token);
-            j = 0;
-            for (int i = 0; i < nbr_digits; i++) {
-                str[i] = token[j]; j++;
+        int j = 0;
+        while (token != NULL && j < nbr_digits) {
+            for (int i = 0; i < strlen(token) && j < nbr_digits; i++) {
+                str[j] = token[i]; j++;
+                if (strlen(str) >= nbr_digits) break; 
             }
-            if (length_token < nbr_digits) {
-                token = strtok(NULL, " ");
+            if (j < nbr_digits) {
+                str[j] = ' '; j++;
             }
+            nbr_digits -= j;
+            token = strtok(NULL, " ");
+            printf("token = %s\n", token);
         }
+        str[j] = '\0';
     }
-    
-    
-    
-    
-    // test cases of "%[^\n]20s"
-    
-    
     
     return;
 }
@@ -216,7 +193,7 @@ void custom_string(char *str, char *afterChrcs, char *token) {
 
 
 
-
+// error with token 
 
 
 
