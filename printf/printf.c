@@ -85,7 +85,6 @@ void _printf(char *str, ...) {
 
 
 
-
 // get the number of digits from a number
 int calculate_digits(int n) {
     if (n == 0) return 1;
