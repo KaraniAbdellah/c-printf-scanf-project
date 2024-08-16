@@ -1,10 +1,9 @@
 // Start The Implementation Of The Functions
 /*
-    %%       - print '%'
     %c       - character
     %s       - string
-    %d, %u   - decimal integer
-    %x, %X   - hex integer
+    %d       - Integer
+    %f       - float
 */
 
 /*
@@ -23,7 +22,7 @@ char _scanf(char *str, ...) {
     va_list args;
     va_start(args, str);
     // getting the characters
-    char buffer[100];
+    char buffer[1000];
     ssize_t n = read(0, buffer, sizeof(buffer) - 1);
     buffer[n] = '\0';
     // return first token
@@ -35,7 +34,7 @@ char _scanf(char *str, ...) {
             char *afterChrcs = NULL;
             int i = 0;
             if (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f' && *p != '\0') {
-                afterChrcs = (char *) calloc(20, sizeof(char));
+                afterChrcs = (char *) calloc(50, sizeof(char));
                 while (*p != 'd' && *p != 's' && *p != 'c' && *p != 'f' && *p != '\0') {
                     afterChrcs[i] = *p; i++; p++;
                 }
@@ -44,7 +43,6 @@ char _scanf(char *str, ...) {
             switch(*p) {
                 case 'd': {
                     error(afterChrcs);
-                    printf("Intger and token = %s\n", token);
                     int *param = va_arg(args, int *);
                     if (token != NULL) {
                         *param = atoi(token);
@@ -60,12 +58,11 @@ char _scanf(char *str, ...) {
                     }
                     if (afterChrcs != NULL) {
                         custom_string(str, afterChrcs, token);
-                        printf("token in cutsom is %s\n", token);
+                        token = strtok(NULL, " ");
                     }
                     break;
                 }
                 case 'f': {
-                    printf("We Are In Float\n");
                     error(afterChrcs);
                     float *param = va_arg(args, float *);
                     if (token != NULL) {
@@ -75,7 +72,6 @@ char _scanf(char *str, ...) {
                     break;
                 }
                 case 'c': {
-                    printf("We Are In Characters\n");
                     error(afterChrcs);
                     char *c = va_arg(args, char *);
                     if (token != NULL) {
@@ -85,7 +81,6 @@ char _scanf(char *str, ...) {
                     break;
                 }
                 case '\0': {
-                    printf("We Are In NULL\n");
                     char *str = va_arg(args, char *);
                     custom_string(str, afterChrcs, token);
                     break;
@@ -165,6 +160,7 @@ void custom_string(char *str, char *afterChrcs, char *token) {
                 str[i] = '\0';
             }
         }
+        return;
     }
     
     // test cases of "%3s"
@@ -178,14 +174,12 @@ void custom_string(char *str, char *afterChrcs, char *token) {
             }
             if (j < nbr_digits) {
                 str[j] = ' '; j++;
+                token = strtok(NULL, " ");
             }
             nbr_digits -= j;
-            token = strtok(NULL, " ");
-            printf("token = %s\n", token);
         }
         str[j] = '\0';
     }
-    
     return;
 }
 
@@ -193,7 +187,7 @@ void custom_string(char *str, char *afterChrcs, char *token) {
 
 
 
-// error with token 
+
 
 
 
